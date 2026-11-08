@@ -1,4 +1,4 @@
-# Backoffice — Autores y libros (Flutter)
+# Seminari 9: API REST para el BackOffice de Flutter
 
 Backoffice adaptado a **Flutter** y Dart para el **Seminario 9 de EA**. Es la versión de Flutter del backoffice que antes hicimos en React Native: usa **la misma API REST** (`EA-Seminari9-Flutter-API`) y dispone de las pantallas de gestión de autores y libros (listar, buscar en tiempo real, crear, editar y borrar autores y libros, vista en lista o tarjetas, permisos de hardware/cámara y pantalla explicativa de teoría).
 
