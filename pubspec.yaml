@@ -1,0 +1,25 @@
+name: ea_seminari8_flutter
+description: Backoffice de autores y libros hecho en Flutter (migrado desde React Native).
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # http: sustituye al fetch de React Native
+  http: ^1.2.0
+  # image_picker: sustituye a expo-image-picker (cámara y galería)
+  image_picker: ^1.1.0
+  # permission_handler: para pedir permisos y ver su estado (como usePermissions.ts)
+  permission_handler: ^11.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
