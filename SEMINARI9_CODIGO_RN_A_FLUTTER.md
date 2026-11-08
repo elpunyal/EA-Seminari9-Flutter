@@ -626,12 +626,12 @@ return jsonDecode(utf8.decode(res.bodyBytes));
 
 ### 7.2. Título y metadatos en Web (`web/index.html` y `web/manifest.json`)
 
-Al generar el proyecto con `flutter create`, la web venía con el nombre del paquete `ea_seminari8_flutter` en el título. Lo he actualizado:
+Al generar el proyecto con `flutter create`, la web venía con el nombre del paquete `ea_seminari9_flutter` en el título. Lo he actualizado:
 
 - `web/index.html`: `<title>Backoffice Libros y Autores</title>` y metadato de iOS `apple-mobile-web-app-title`.
 - `web/manifest.json`: `"name": "Backoffice Libros y Autores"`, `"short_name": "Backoffice"` y descripción del proyecto.
 
 ### 7.3. Nombre visible de la app en Android e iOS
 
-- **Android (`android/app/src/main/AndroidManifest.xml`, l. 7):** he cambiado `android:label="ea_seminari8_flutter"` por `android:label="Backoffice Autores y Libros"` para que en el emulador y en el cajón de aplicaciones del móvil salga el nombre real del backoffice y no el nombre del paquete.
+- **Android (`android/app/src/main/AndroidManifest.xml`, l. 7):** he cambiado `android:label="ea_seminari9_flutter"` por `android:label="Backoffice Autores y Libros"` para que en el emulador y en el cajón de aplicaciones del móvil salga el nombre real del backoffice y no el nombre del paquete.
 - **iOS (`ios/Runner/Info.plist`, l. 17-19):** he añadido `CFBundleDisplayName` con `"Backoffice Libros"` y actualizado `CFBundleName` a `ea_seminari9_flutter`.

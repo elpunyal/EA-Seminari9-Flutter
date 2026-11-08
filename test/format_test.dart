@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:ea_seminari8_flutter/utils/format.dart';
+import 'package:ea_seminari9_flutter/utils/format.dart';
 
 // Test sencillo de las funciones de formato
 void main() {
