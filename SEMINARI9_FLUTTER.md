@@ -33,7 +33,7 @@ EA-Seminari9-Flutter/
     ├── services/     http_client.dart, author_service.dart,
     │                 book_service.dart, permissions_service.dart
     ├── providers/    books_provider.dart, authors_provider.dart     (Provider)
-    ├── controllers/  home, list_ui, book_form, author_form,
+    ├── controllers/  home, books_list, authors_list, book_form, author_form,
     │                 book_detail, author_detail, permissions        (GetX)
     ├── utils/        format.dart
     ├── theme/        app_colors.dart
@@ -66,7 +66,7 @@ EA-Seminari9-Flutter/
 | `components/RoleBadge.tsx` | `widgets/role_badge.dart` | Además añadí `ActiveBadge` (Activo/Inactivo). |
 | `components/BookCard.tsx` | `widgets/book_card.dart` | Modo lista y modo tarjeta, con editorial. |
 | `components/AuthorCard.tsx` | `widgets/author_card.dart` | Modo lista y modo tarjeta. |
-| `books/index.tsx` | `screens/books_screen.dart` + `controllers/list_ui_controller.dart` | Lista, buscador, pull-to-refresh, borrar. Datos del Provider; buscador y vista de GetX. |
+| `books/index.tsx` | `screens/books_screen.dart` + `controllers/books_list_controller.dart` | Lista, buscador, pull-to-refresh, borrar. Datos del Provider; buscador y vista de GetX. |
 | `books/new.tsx` + `books/[id]/edit.tsx` | `screens/book_form_screen.dart` + `controllers/book_form_controller.dart` | **Unidos en un solo fichero** (ver abajo). La lógica está en el controlador. |
 | `books/[id]/index.tsx` | `screens/book_detail_screen.dart` + `controllers/book_detail_controller.dart` | Detalle del libro. |
 | `authors/index.tsx` | `screens/authors_screen.dart` | Lista de autores. |
@@ -261,5 +261,5 @@ La hoja (guion de Flutter) pedía estos temas. Esto es dónde está cada uno **e
 | Routing con GetX | `GetMaterialApp` y `getPages` en `main.dart` l. 33-52 |
 | Estado: `setState` | **Ya no se usa** (se explica como base en Teoría, apartado 13) |
 | Estado: Provider | `providers/books_provider.dart` y `authors_provider.dart` |
-| Estado: GetX | `controllers/` (7 controladores) con `.obs` y `Obx` |
+| Estado: GetX | `controllers/` (8 controladores) con `.obs` y `Obx` |
 | Renderizado (Skia) | Teoría, apartado 14 (comprobado con la documentación oficial de Flutter 3.47) |

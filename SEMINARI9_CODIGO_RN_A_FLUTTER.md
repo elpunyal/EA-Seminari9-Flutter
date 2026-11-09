@@ -60,10 +60,11 @@ Flutter tiene menos líneas sobre todo porque los estilos van dentro del widget 
 | `hooks/useApiList.ts` (lista de la API) | 1-66 | → | `providers/books_provider.dart` | 1-42 |
 | | | → | `providers/authors_provider.dart` | 1-37 |
 | `hooks/useForm.ts` + `useState` de `books/new.tsx` y `edit.tsx` | 1-97 | → | `controllers/book_form_controller.dart` | 1-180 |
-| `hooks/useForm.ts` + `useState` de `authors/new.tsx` y `edit.tsx` | | → | `controllers/author_form_controller.dart` | 1-157 |
+| `hooks/useForm.ts` + `useState` de `authors/new.tsx` y `edit.tsx` | | → | `controllers/author_form_controller.dart` | 1-158 |
 | `useEffect` + `useState` de `books/[id]/index.tsx` | 24-45 | → | `controllers/book_detail_controller.dart` | 1-33 |
 | `useEffect` + `useState` de `authors/[id]/index.tsx` | 24-45 | → | `controllers/author_detail_controller.dart` | 1-32 |
-| `useState` de la lista (`search`, `viewMode`) | `books/index.tsx` 44-47 | → | `controllers/list_ui_controller.dart` | 1-18 |
+| `useState` de la lista de libros (`search`, `viewMode`) | `books/index.tsx` 44-47 | → | `controllers/books_list_controller.dart` | 1-17 |
+| `useState` de la lista de autores (`search`, `viewMode`) | `authors/index.tsx` 36-39 | → | `controllers/authors_list_controller.dart` | 1-17 |
 | `useState` de pestañas (Expo Router) | `(tabs)/_layout.tsx` | → | `controllers/home_controller.dart` | 1-10 |
 | `useState` de `permissions.tsx` | 15-39 | → | `controllers/permissions_controller.dart` | 1-35 |
 | `hooks/usePermissions.ts` | 1-112 | → | `services/permissions_service.dart` | 1-106 |
@@ -91,12 +92,12 @@ Flutter tiene menos líneas sobre todo porque los estilos van dentro del widget 
 | `app/_layout.tsx` + `app/index.tsx` | 18 + 5 | → | `main.dart` (providers + rutas) | 1-56 |
 | `app/(tabs)/_layout.tsx` | 1-72 | → | `screens/home_screen.dart` | 1-65 |
 | `app/(tabs)/books/_layout.tsx`, `authors/_layout.tsx` | 19 + 19 | → | *(las rutas están en `main.dart`, l. 45-51)* | — |
-| `app/(tabs)/books/index.tsx` | 1-275 | → | `screens/books_screen.dart` | 1-180 |
-| `app/(tabs)/books/new.tsx` | 1-539 | → | `screens/book_form_screen.dart` (modo crear) | 1-285 |
+| `app/(tabs)/books/index.tsx` | 1-275 | → | `screens/books_screen.dart` | 1-179 |
+| `app/(tabs)/books/new.tsx` | 1-539 | → | `screens/book_form_screen.dart` (modo crear) | 1-275 |
 | `app/(tabs)/books/[id]/edit.tsx` | 1-466 | → | `screens/book_form_screen.dart` (modo editar) | *(el mismo)* |
-| `app/(tabs)/books/[id]/index.tsx` | 1-316 | → | `screens/book_detail_screen.dart` | 1-269 |
+| `app/(tabs)/books/[id]/index.tsx` | 1-316 | → | `screens/book_detail_screen.dart` | 1-268 |
 | `app/(tabs)/authors/index.tsx` | 1-256 | → | `screens/authors_screen.dart` | 1-153 |
-| `app/(tabs)/authors/new.tsx` | 1-460 | → | `screens/author_form_screen.dart` (modo crear) | 1-229 |
+| `app/(tabs)/authors/new.tsx` | 1-460 | → | `screens/author_form_screen.dart` (modo crear) | 1-220 |
 | `app/(tabs)/authors/[id]/edit.tsx` | 1-403 | → | `screens/author_form_screen.dart` (modo editar) | *(el mismo)* |
 | `app/(tabs)/authors/[id]/index.tsx` | 1-283 | → | `screens/author_detail_screen.dart` | 1-230 |
 | `app/(tabs)/permissions.tsx` | 1-372 | → | `screens/permissions_screen.dart` | 1-195 |
@@ -285,7 +286,7 @@ class BooksProvider extends ChangeNotifier {
 |---|---|
 | Crear los providers y pedir los datos al arrancar | `main.dart` l. 27-31 (`MultiProvider` + `..loadBooks()`) |
 | Mirar el estado (la pantalla se repinta sola) | `books_screen.dart` l. 46: `context.watch<BooksProvider>()` |
-| Recargar tras guardar | `book_form_screen.dart` l. 53-58: `provider.loadBooks()` |
+| Recargar tras guardar | `book_form_controller.dart` l. 172: `Provider.of<BooksProvider>(Get.context!, listen: false).loadBooks()` |
 
 **Efecto:** ya no existe el `_loadBooks()` que había que llamar al volver de otra pantalla: el formulario recarga el provider y la lista se actualiza sola.
 
@@ -294,13 +295,13 @@ class BooksProvider extends ChangeNotifier {
 | Qué hace | React Native | Flutter |
 |---|---|---|
 | Pedir los libros | `useApiList(bookService.getBooks)` (l. 42) | `BooksProvider` (se crea en `main.dart`) |
-| Estado (buscar, vista) | `useState` (l. 44-47) | `ListUiController` de GetX (`list_ui_controller.dart`) |
+| Estado (buscar, vista) | `useState` (l. 44-47) | `BooksListController` de GetX (`books_list_controller.dart`) |
 | Filtrar con editorial | `matchesBook` (l. 26-33) | `_matchesBook` (l. 18-25) |
 | Lista filtrada | `useMemo` (l. 51) | dentro del `Obx` (l. 58-61) |
 | Borrar | `confirmDelete` + `<ConfirmModal>` (l. 57, 170) | `_deleteBook` con `confirmDialog` (l. 32-41) |
-| Ir a editar/detalle | `router.push(...)` (l. 72, 80) | `Get.toNamed('/books/${book.id}')` (l. 165-166) |
-| Lista | `<FlatList>` (l. 134) | `ListView.builder` (l. 156) |
-| Arrastrar para refrescar | `<RefreshControl>` (l. 147) | `RefreshIndicator` (l. 124) |
+| Ir a editar/detalle | `router.push(...)` (l. 72, 80) | `Get.toNamed('/books/${book.id}')` (l. 164-165) |
+| Lista | `<FlatList>` (l. 134) | `ListView.builder` (l. 155) |
+| Arrastrar para refrescar | `<RefreshControl>` (l. 147) | `RefreshIndicator` (l. 123) |
 
 **Antes**
 
@@ -315,7 +316,7 @@ const filteredBooks = useMemo(() => {
 
 ```dart
 final provider = context.watch<BooksProvider>();                 // PROVIDER: los datos
-final ui = Get.put(ListUiController(), tag: 'books');            // GETX: buscador y vista
+final ui = Get.put(BooksListController());                       // GETX: buscador y vista
 
 Obx(() {                                                         // se repinta al cambiar el buscador
   final search = ui.search.value.trim();
@@ -338,22 +339,22 @@ Obx(() {                                                         // se repinta a
 (book.publisher?.toLowerCase().contains(query) ?? false) ||
 ```
 
-### 3.8. Formulario de libro — `new.tsx` (1-539) + `[id]/edit.tsx` (1-466) → `book_form_controller.dart` (1-180) + `book_form_screen.dart` (1-285)
+### 3.8. Formulario de libro — `new.tsx` (1-539) + `[id]/edit.tsx` (1-466) → `book_form_controller.dart` (1-180) + `book_form_screen.dart` (1-275)
 
 Ahora el formulario se reparte en dos ficheros: el **controlador GetX** (la lógica) y la **pantalla** (solo dibuja).
 
 | Qué hace | React Native | Flutter |
 |---|---|---|
-| Valores del formulario | `useForm` + `INITIAL_VALUES` (new l. 42, 86) | un `TextEditingController` por campo (controlador l. 24-30) |
-| Autores/etiquetas/idioma elegidos | `form.values.authors` (new l. 92-110) | `selectedAuthors`, `selectedTags`, `language` con `.obs` (l. 33-35) |
-| Editorial | `publisher: ''` (new l. 45) + `<TextInput>` (l. 218-224) | `publisherCtrl` (controlador l. 26) + `TextFormField` (pantalla l. 130) |
-| Precargar al editar | `fill({...})` (edit l. 96-107) | `loadData()` (controlador l. 65-85) |
-| Elegir autor / etiqueta | `toggleAuthor`, `toggleTag` (new l. 92, 102) | `toggleAuthor`, `toggleTag` (controlador l. 89, 93) |
-| Validación | `validate()` (new l. 56-80) | `validateRequired/Year/Pages/Price` (controlador l. 108-133) |
-| Enviar | `handleSubmit` (new l. 124) | `submit()` (controlador l. 135-179) |
-| Crear / editar | dos ficheros: `createBook` (new l. 145) / `updateBook` (edit l. 160) | un `if (isEditing)` (controlador l. 164-168) |
-| Volver atrás | `router.back()` (new l. 147) | `Get.back()` (controlador l. 171) |
-| Recargar la lista | (la lista se recargaba sola al montarse) | `provider.loadBooks()` (pantalla l. 53-58) |
+| Valores del formulario | `useForm` + `INITIAL_VALUES` (new l. 42, 86) | un `TextEditingController` por campo (controlador l. 26-32) |
+| Autores/etiquetas/idioma elegidos | `form.values.authors` (new l. 92-110) | `selectedAuthors`, `selectedTags`, `language` con `.obs` (l. 35-37) |
+| Editorial | `publisher: ''` (new l. 45) + `<TextInput>` (l. 218-224) | `publisherCtrl` (controlador l. 28) + `TextFormField` (pantalla l. 120) |
+| Precargar al editar | `fill({...})` (edit l. 96-107) | `loadData()` (controlador l. 67-87) |
+| Elegir autor / etiqueta | `toggleAuthor`, `toggleTag` (new l. 92, 102) | `toggleAuthor`, `toggleTag` (controlador l. 91, 95) |
+| Validación | `validate()` (new l. 56-80) | `validateRequired/Year/Pages/Price` (controlador l. 110-135) |
+| Enviar | `handleSubmit` (new l. 124) | `submit()` (controlador l. 137-181) |
+| Crear / editar | dos ficheros: `createBook` (new l. 145) / `updateBook` (edit l. 160) | un `if (isEditing)` (controlador l. 166-170) |
+| Volver atrás | `router.back()` (new l. 147) | `Get.back()` (controlador l. 173) |
+| Recargar la lista | (la lista se recargaba sola al montarse) | `Provider.of<BooksProvider>(...).loadBooks()` (controlador l. 172) |
 
 **Antes (editorial, `new.tsx`)**
 
@@ -366,7 +367,7 @@ const payload = removeEmpty({
 await bookService.createBook(payload);
 ```
 
-**Después (`book_form_controller.dart` l. 146-167)**
+**Después (`book_form_controller.dart` l. 148-170)**
 
 ```dart
 final book = Book(                                    // ahora creamos un objeto Book
@@ -394,11 +395,11 @@ setSaving(true);
 
 ```dart
 // Después: GetX. .obs crea el valor observable y Obx repinta SOLO esa parte
-final saving = false.obs;                    // controlador l. 40
+final saving = false.obs;                    // controlador l. 42
 saving.value = true;
 
-Obx(() => ElevatedButton(                    // pantalla l. 247-252
-  onPressed: c.saving.value ? null : () => _save(context, c),
+Obx(() => ElevatedButton(                    // pantalla l. 237-242
+  onPressed: c.saving.value ? null : c.submit,
   ...
 ))
 ```
@@ -411,7 +412,7 @@ fill({ title: book.title, publisher: book.publisher ?? '', price: book.price?.to
 ```
 
 ```dart
-// Después (book_form_controller.dart l. 70-83)
+// Después (book_form_controller.dart l. 73-85)
 titleCtrl.text = book.title;
 publisherCtrl.text = book.publisher ?? '';
 priceCtrl.text = book.price?.toString() ?? '';
@@ -420,12 +421,12 @@ priceCtrl.text = book.price?.toString() ?? '';
 **Id desde la ruta**
 
 ```dart
-// book_form_screen.dart l. 62-63: si la ruta es /books/:id/edit hay id; si es /books/new, es null
+// book_form_screen.dart l. 52-53: si la ruta es /books/:id/edit hay id; si es /books/new, es null
 final id = Get.parameters['id'];
-final c = Get.put(BookFormController(id), tag: id ?? 'new');
+final c = Get.put(BookFormController(id));
 ```
 
-### 3.9. Detalle de libro — `[id]/index.tsx` (1-316) → `book_detail_controller.dart` (1-33) + `book_detail_screen.dart` (1-269)
+### 3.9. Detalle de libro — `[id]/index.tsx` (1-316) → `book_detail_controller.dart` (1-33) + `book_detail_screen.dart` (1-268)
 
 ```tsx
 // Antes: useEffect + AbortController
@@ -448,28 +449,28 @@ class BookDetailController extends GetxController {
   Future<void> loadBook() async { ... }                  // l. 23-32
 }
 
-// y en la pantalla (book_detail_screen.dart l. 66-77):
+// y en la pantalla (book_detail_screen.dart l. 65-76):
 final id = Get.parameters['id']!;
-final c = Get.put(BookDetailController(id), tag: id);
+final c = Get.put(BookDetailController(id));
 body: Obx(() => _buildBody(c)),
 ```
 
 | Parte | React Native | Flutter |
 |---|---|---|
-| Portada de prueba | l. 69 `picsum.photos/seed/${book._id}/400/500` | l. 134 `picsum.photos/seed/${book.id}/400/500` |
-| Etiqueta Editorial | l. 81-86 | l. 156-175 |
-| Botón Editar Libro | l. 149 | l. 249-259 (`Get.toNamed('/books/${book.id}/edit')` y recarga al volver) |
+| Portada de prueba | l. 69 `picsum.photos/seed/${book._id}/400/500` | l. 133 `picsum.photos/seed/${book.id}/400/500` |
+| Etiqueta Editorial | l. 81-86 | l. 155-174 |
+| Botón Editar Libro | l. 149 | l. 248-258 (`Get.toNamed('/books/${book.id}/edit')` y recarga al volver) |
 
-### 3.10. Formulario de autor — `authors/new.tsx` (1-460) + `[id]/edit.tsx` (1-403) → `author_form_controller.dart` (1-157) + `author_form_screen.dart` (1-229)
+### 3.10. Formulario de autor — `authors/new.tsx` (1-460) + `[id]/edit.tsx` (1-403) → `author_form_controller.dart` (1-158) + `author_form_screen.dart` (1-220)
 
 | Qué hace | React Native | Flutter |
 |---|---|---|
-| Reglas de validación | `validate()` new l. 49-78 / edit l. 47-76 | `validateName/Email/Password/Confirm/Website` (controlador l. 89-117) |
-| No enviar `confirmPassword` | `const { confirmPassword: _cp, ...formData } = form.values` (new l. 105) | el modelo `Author` ni tiene `confirmPassword` (controlador l. 126-136) |
-| Precargar al editar | `fill({...})` (edit l. 95-103) | `loadAuthor()` (controlador l. 60-76) |
-| Interruptor activo | `<Switch>` (new l. 263) | `Switch(...)` con `active.obs` (pantalla l. 182) |
-| Crear / editar | `createAuthor` (new l. 112) / `updateAuthor` (edit l. 131) | `if (isEditing)` (controlador l. 142-146) |
-| Recargar la lista | — | `provider.loadAuthors()` (pantalla l. 42-47) |
+| Reglas de validación | `validate()` new l. 49-78 / edit l. 47-76 | `validateName/Email/Password/Confirm/Website` (controlador l. 91-119) |
+| No enviar `confirmPassword` | `const { confirmPassword: _cp, ...formData } = form.values` (new l. 105) | el modelo `Author` ni tiene `confirmPassword` (controlador l. 128-139) |
+| Precargar al editar | `fill({...})` (edit l. 95-103) | `loadAuthor()` (controlador l. 62-78) |
+| Interruptor activo | `<Switch>` (new l. 263) | `Switch(...)` con `active.obs` (pantalla l. 173) |
+| Crear / editar | `createAuthor` (new l. 112) / `updateAuthor` (edit l. 131) | `if (isEditing)` (controlador l. 144-148) |
+| Recargar la lista | — | `Provider.of<AuthorsProvider>(...).loadAuthors()` (controlador l. 150) |
 
 ```tsx
 // Antes
@@ -571,7 +572,7 @@ final confirmed = await confirmDialog(title: 'Confirmar Borrado', message: '...'
 if (!confirmed) return;
 ```
 
-> **Detalle de GetX (descubierto probando):** si hay un aviso abierto, `Get.back()` cierra **el aviso** y no la pantalla. Por eso en los formularios primero se hace `Get.back()` y **después** `showToast(...)` (`book_form_controller.dart` l. 169-172, `author_form_controller.dart` l. 147-149).
+> **Detalle de GetX (descubierto probando):** si hay un aviso abierto, `Get.back()` cierra **el aviso** y no la pantalla. Por eso en los formularios primero se hace `Get.back()` y **después** `showToast(...)` (`book_form_controller.dart` l. 173-174, `author_form_controller.dart` l. 151-152).
 
 ### 3.13. Cancelar peticiones — `AbortController`
 
@@ -712,7 +713,7 @@ El apartado 14 está comprobado con la documentación oficial de Flutter 3.47 (<
 | Fichero | Para qué |
 |---|---|
 | `providers/books_provider.dart`, `authors_provider.dart` | Estado de los datos de la API (Provider) |
-| `controllers/*.dart` (7 ficheros) | Estado de cada pantalla (GetX): formularios, detalles, buscador, pestañas y permisos |
+| `controllers/*.dart` (8 ficheros) | Estado de cada pantalla (GetX): formularios, detalles, buscador de libros y de autores, pestañas y permisos |
 | `widgets/photo_picker_section.dart` | El bloque de foto (cámara/galería) estaba copiado en los dos formularios |
 | `widgets/error_banner.dart` | El cuadro rojo de error estaba copiado en todas las pantallas |
 | `widgets/field_wrapper.dart` → `inputDecoration()` | El estilo común de los campos de texto (antes `styles.input` repetido en cada fichero) |
