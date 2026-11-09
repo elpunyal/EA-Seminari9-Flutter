@@ -1,4 +1,5 @@
 import '../models/author.dart';
+import '../utils/format.dart';
 import 'http_client.dart';
 
 // Llamadas a la API de autores (igual que author.service.ts)
@@ -18,14 +19,14 @@ class AuthorService {
   }
 
   /// POST /authors
-  static Future<Author> createAuthor(Map<String, dynamic> payload) async {
-    final res = await request('/authors', method: 'POST', body: payload);
+  static Future<Author> createAuthor(Author author) async {
+    final res = await request('/authors', method: 'POST', body: removeEmpty(author.toJson()));
     return Author.fromJson(res['author'] as Map<String, dynamic>);
   }
 
   /// PUT /authors/:id
-  static Future<Author> updateAuthor(String id, Map<String, dynamic> payload) async {
-    final res = await request('/authors/$id', method: 'PUT', body: payload);
+  static Future<Author> updateAuthor(String id, Author author) async {
+    final res = await request('/authors/$id', method: 'PUT', body: removeEmpty(author.toJson()));
     return Author.fromJson(res['author'] as Map<String, dynamic>);
   }
 

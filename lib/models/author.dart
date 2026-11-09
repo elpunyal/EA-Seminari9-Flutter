@@ -11,6 +11,7 @@ class Author {
   final String? photoUrl;
   final bool? active;
   final String? role; // 'author' o 'admin'
+  final String? password; // solo se usa para ENVIAR (la API nunca la devuelve)
 
   Author({
     required this.id,
@@ -23,6 +24,7 @@ class Author {
     this.photoUrl,
     this.active,
     this.role,
+    this.password,
   });
 
   // Convierte el JSON de la API en un objeto Author
@@ -39,6 +41,21 @@ class Author {
       active: json['active'] as bool?,
       role: json['role'] as String?,
     );
+  }
+
+  // Al revés: convierte el objeto en un mapa para mandarlo a la API (serialización)
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'email': email,
+      'password': password,
+      'birthDate': birthDate,
+      'nationality': nationality,
+      'biography': biography,
+      'website': website,
+      'active': active,
+      'role': role,
+    };
   }
 }
 

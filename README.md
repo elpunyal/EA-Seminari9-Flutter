@@ -61,38 +61,54 @@ La URL de la API se gestiona automáticamente según la plataforma en `lib/confi
 
 ```
 lib/
-├── main.dart                 punto de entrada
+├── main.dart                 punto de entrada: providers y rutas con nombre (GetX)
 ├── config/environment.dart   URL de la API según la plataforma
-├── models/                   Author y Book (con fromJson)
+├── models/                   Author y Book (con fromJson y toJson)
 ├── services/                 http_client, author_service, book_service, permissions_service
+├── providers/                BooksProvider y AuthorsProvider (estado de los datos, Provider)
+├── controllers/              estado de cada pantalla (GetX): formularios, detalles, buscador, pestañas y permisos
 ├── utils/format.dart         formato de fechas, precios, removeEmpty...
 ├── theme/app_colors.dart     colores de la app
 ├── widgets/                  tarjetas, buscador, diálogos, campos...
 └── screens/                  las pantallas
 ```
 
-## Pantallas (Navigator)
+## Estado y navegación
+
+- **Provider** (`providers/`): guarda los libros y autores que vienen de la API y los comparten varias pantallas.
+- **GetX** (`controllers/`): guarda el estado de cada pantalla (`.obs` y `Obx`) y se encarga de las rutas, los diálogos y los avisos.
+- No se usa `setState` en ninguna pantalla.
+
+## Rutas (GetX)
+
+| Ruta | Pantalla | Fichero |
+|---|---|---|
+| `/` | Pestañas: Libros, Autores, Permisos y Teoría | `screens/home_screen.dart` |
+| `/books/new` | Nuevo Libro | `screens/book_form_screen.dart` |
+| `/books/:id` | Detalle Libro | `screens/book_detail_screen.dart` |
+| `/books/:id/edit` | Editar Libro | `screens/book_form_screen.dart` |
+| `/authors/new` | Nuevo Autor | `screens/author_form_screen.dart` |
+| `/authors/:id` | Detalle Autor | `screens/author_detail_screen.dart` |
+| `/authors/:id/edit` | Editar Autor | `screens/author_form_screen.dart` |
+
+## Pantallas
 
 | Pantalla | Fichero | Descripción |
 |---|---|---|
 | Libros | `screens/books_screen.dart` | Catálogo de libros con buscador en tiempo real (título, ISBN, descripción, **editorial**), pull-to-refresh y vista lista/tarjetas. |
-| Nuevo Libro | `screens/book_form_screen.dart` | Formulario de libro con campo editorial (`publisher`) y selección de foto con cámara/galería (permisos nativos). |
-| Editar Libro | `screens/book_form_screen.dart` | El mismo formulario con precarga completa de datos incluyendo editorial. |
+| Nuevo / Editar Libro | `screens/book_form_screen.dart` | Formulario de libro con campo editorial (`publisher`), precarga al editar y selección de foto con cámara/galería (permisos nativos). |
 | Detalle Libro | `screens/book_detail_screen.dart` | Vista de detalle de portada grande, editorial, autores, tags y precio. |
 | Autores | `screens/authors_screen.dart` | Listado con buscador, pull-to-refresh, edición y diálogo de borrado. |
-| Nuevo Autor | `screens/author_form_screen.dart` | Formulario con roles, estado activo y foto de perfil. |
-| Editar Autor | `screens/author_form_screen.dart` | Formulario de edición con precarga. |
+| Nuevo / Editar Autor | `screens/author_form_screen.dart` | Formulario con roles, estado activo y foto de perfil. |
 | Detalle Autor | `screens/author_detail_screen.dart` | Información del autor, biografía y estado. |
 | Permisos Nativos | `screens/permissions_screen.dart` | Demostrador interactivo de permisos de Cámara y Galería (`permissions_service.dart`). |
-| Teoría & Comparativa | `screens/info_screen.dart` | Resumen de Flutter vs React Native: widgets, estado, navegación, eventos, etc. |
-
-La pantalla principal (`screens/home_screen.dart`) tiene las 4 pestañas de abajo: Libros, Autores, Permisos y Teoría.
+| Teoría & Comparativa | `screens/info_screen.dart` | 15 apartados de Flutter: multiplataforma, Dart, widgets, estado, rutas, renderizado, etc. |
 
 ## Comprobar el proyecto
 
 ```bash
 flutter analyze   # busca errores en el código
-flutter test      # ejecuta el test de las funciones de formato
+flutter test      # ejecuta los tests de formato y de serialización (fromJson / toJson)
 ```
 
 ## Documentación de Cambios

@@ -1,51 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../models/author.dart';
-import '../services/author_service.dart';
+import '../controllers/author_detail_controller.dart';
 import '../theme/app_colors.dart';
 import '../utils/format.dart';
 import '../widgets/role_badge.dart';
-import 'author_form_screen.dart';
 
-// Detalle de un autor (antes authors/[id]/index.tsx)
-class AuthorDetailScreen extends StatefulWidget {
-  final String authorId;
-
-  const AuthorDetailScreen({super.key, required this.authorId});
-
-  @override
-  State<AuthorDetailScreen> createState() => _AuthorDetailScreenState();
-}
-
-class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
-  Author? _author;
-  bool _loading = true;
-  String _error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAuthor();
-  }
-
-  Future<void> _loadAuthor() async {
-    setState(() {
-      _loading = true;
-      _error = '';
-    });
-    try {
-      final author = await AuthorService.getAuthor(widget.authorId);
-      setState(() {
-        _author = author;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = errorMessage(e);
-        _loading = false;
-      });
-    }
-  }
+// Detalle de un autor (antes authors/[id]/index.tsx).
+// Igual que el del libro: el id viene en la ruta y el controlador de GETX carga el autor.
+class AuthorDetailScreen extends StatelessWidget {
+  const AuthorDetailScreen({super.key});
 
   // Fila con icono, etiqueta y valor
   Widget _infoRow(IconData icon, String label, String value) {
@@ -73,6 +37,9 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final id = Get.parameters['id']!;
+    final c = Get.put(AuthorDetailController(id));
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -80,12 +47,12 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      body: _buildBody(),
+      body: Obx(() => _buildBody(c)),
     );
   }
 
-  Widget _buildBody() {
-    if (_loading) {
+  Widget _buildBody(AuthorDetailController c) {
+    if (c.loading.value) {
       return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -98,8 +65,8 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
       );
     }
 
-    final author = _author;
-    if (_error.isNotEmpty || author == null) {
+    final author = c.author.value;
+    if (c.error.value.isNotEmpty || author == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -113,12 +80,12 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               ),
               Text(
-                _error.isEmpty ? 'Autor no encontrado' : _error,
+                c.error.value.isEmpty ? 'Autor no encontrado' : c.error.value,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppColors.textMuted),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Volver')),
+              ElevatedButton(onPressed: () => Get.back(), child: const Text('Volver')),
             ],
           ),
         ),
@@ -243,11 +210,8 @@ class _AuthorDetailScreenState extends State<AuthorDetailScreen> {
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => AuthorFormScreen(authorId: author.id)),
-                );
-                _loadAuthor();
+                await Get.toNamed('/authors/${author.id}/edit');
+                c.loadAuthor();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

@@ -1,46 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../services/permissions_service.dart';
+import '../controllers/permissions_controller.dart';
 import '../theme/app_colors.dart';
 import '../widgets/photo_picker_section.dart';
 
-// Pantalla para probar los permisos nativos (antes permissions.tsx)
-class PermissionsScreen extends StatefulWidget {
+// Pantalla para probar los permisos nativos (antes permissions.tsx).
+// El estado de los permisos y la foto viven en PermissionsController (GETX).
+class PermissionsScreen extends StatelessWidget {
   const PermissionsScreen({super.key});
-
-  @override
-  State<PermissionsScreen> createState() => _PermissionsScreenState();
-}
-
-class _PermissionsScreenState extends State<PermissionsScreen> {
-  final _permissions = PermissionsService();
-  String? _capturedImage;
-
-  // Después de pedir un permiso hacemos setState para que se actualice el estado en pantalla
-  Future<void> _askCamera() async {
-    await _permissions.requestCameraPermission(context);
-    setState(() {});
-  }
-
-  Future<void> _askGallery() async {
-    await _permissions.requestMediaLibraryPermission(context);
-    setState(() {});
-  }
-
-  Future<void> _openCamera() async {
-    final path = await _permissions.takePhoto(context);
-    setState(() {
-      if (path != null) _capturedImage = path;
-    });
-  }
-
-  Future<void> _openGallery() async {
-    final path = await _permissions.pickImage(context);
-    setState(() {
-      if (path != null) _capturedImage = path;
-    });
-  }
 
   // Etiqueta de color según el estado del permiso
   Widget _statusBadge(PermissionStatus? status) {
@@ -112,6 +81,8 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = Get.put(PermissionsController());
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -181,10 +152,11 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               'Estado de los Permisos en tu Teléfono',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
-            _statusRow(Icons.camera_alt, 'Cámara', 'Para hacer fotos de portadas o autores',
-                _permissions.cameraStatus),
-            _statusRow(Icons.photo_library, 'Galería de Fotos',
-                'Para seleccionar imágenes guardadas', _permissions.mediaLibraryStatus),
+            // Obx: el estado se actualiza solo cuando cambia el permiso
+            Obx(() => _statusRow(Icons.camera_alt, 'Cámara',
+                'Para hacer fotos de portadas o autores', c.cameraStatus.value)),
+            Obx(() => _statusRow(Icons.photo_library, 'Galería de Fotos',
+                'Para seleccionar imágenes guardadas', c.mediaLibraryStatus.value)),
 
             const SizedBox(height: 16),
             const Text(
@@ -192,23 +164,29 @@ class _PermissionsScreenState extends State<PermissionsScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 8),
-            _actionButton('1. Pedir Permiso de Cámara', Icons.verified_user_outlined, _askCamera),
-            _actionButton('2. Pedir Permiso de Galería', Icons.verified_user_outlined, _askGallery),
-            _actionButton('3. Abrir Cámara y Hacer Foto', Icons.camera_alt_outlined, _openCamera,
+            _actionButton('1. Pedir Permiso de Cámara', Icons.verified_user_outlined, c.askCamera),
+            _actionButton('2. Pedir Permiso de Galería', Icons.verified_user_outlined, c.askGallery),
+            _actionButton('3. Abrir Cámara y Hacer Foto', Icons.camera_alt_outlined, c.openCamera,
                 primary: true),
             _actionButton(
-                '4. Abrir Galería y Elegir Foto', Icons.photo_library_outlined, _openGallery,
+                '4. Abrir Galería y Elegir Foto', Icons.photo_library_outlined, c.openGallery,
                 primary: true),
 
-            if (_capturedImage != null) ...[
-              const SizedBox(height: 12),
-              const Text(
-                'Última imagen elegida',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 8),
-              Center(child: LocalImage(path: _capturedImage!, width: 200, height: 260)),
-            ],
+            Obx(() {
+              final path = c.capturedImage.value;
+              if (path == null) return const SizedBox();
+              return Column(
+                children: [
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Última imagen elegida',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(child: LocalImage(path: path, width: 200, height: 260)),
+                ],
+              );
+            }),
           ],
         ),
       ),

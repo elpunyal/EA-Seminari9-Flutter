@@ -43,10 +43,14 @@ class Book {
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
-    // authors viene como lista de objetos, los pasamos a Author
-    final authors = (json['authors'] as List<dynamic>? ?? [])
-        .map((a) => Author.fromJson(a))
-        .toList();
+    // authors normalmente viene como lista de objetos, pero al crear un libro la API
+    // solo devuelve los ids (texto). Por eso solo convertimos los que son objetos.
+    final authors = <Author>[];
+    for (final a in (json['authors'] as List<dynamic>? ?? [])) {
+      if (a is Map<String, dynamic>) {
+        authors.add(Author.fromJson(a));
+      }
+    }
 
     return Book(
       id: json['_id'] as String,
@@ -63,5 +67,23 @@ class Book {
       price: (json['price'] as num?)?.toDouble(),
       description: json['description'] as String?,
     );
+  }
+
+  // Al revés: convierte el libro en un mapa para mandarlo a la API (serialización).
+  // En authors solo mandamos los ids, que es lo que espera la API.
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'isbn': isbn,
+      'authors': authors.map((a) => a.id).toList(),
+      'edition': edition,
+      'publisher': publisher,
+      'publishedYear': publishedYear,
+      'pages': pages,
+      'language': language,
+      'tags': tags,
+      'price': price,
+      'description': description,
+    };
   }
 }

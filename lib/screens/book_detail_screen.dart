@@ -1,51 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../models/book.dart';
-import '../services/book_service.dart';
+import '../controllers/book_detail_controller.dart';
 import '../theme/app_colors.dart';
 import '../utils/format.dart';
-import 'book_form_screen.dart';
 
 // Detalle de un libro (antes books/[id]/index.tsx).
-// El id nos llega por el constructor (en Expo llegaba por la ruta con useLocalSearchParams).
-class BookDetailScreen extends StatefulWidget {
-  final String bookId;
-
-  const BookDetailScreen({super.key, required this.bookId});
-
-  @override
-  State<BookDetailScreen> createState() => _BookDetailScreenState();
-}
-
-class _BookDetailScreenState extends State<BookDetailScreen> {
-  Book? _book;
-  bool _loading = true;
-  String _error = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBook();
-  }
-
-  Future<void> _loadBook() async {
-    setState(() {
-      _loading = true;
-      _error = '';
-    });
-    try {
-      final book = await BookService.getBook(widget.bookId);
-      setState(() {
-        _book = book;
-        _loading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = errorMessage(e);
-        _loading = false;
-      });
-    }
-  }
+// El id nos llega en la ruta (/books/:id) y lo leemos con Get.parameters
+// (en Expo era useLocalSearchParams). El libro lo carga un controlador de GETX.
+class BookDetailScreen extends StatelessWidget {
+  const BookDetailScreen({super.key});
 
   // Cuadrito con título pequeño y valor (ISBN, idioma, año...)
   Widget _metaItem(String label, String value) {
@@ -98,6 +62,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final id = Get.parameters['id']!;
+    final c = Get.put(BookDetailController(id));
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -105,13 +72,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         backgroundColor: Colors.white,
         surfaceTintColor: Colors.white,
       ),
-      body: _buildBody(),
+      // Obx se repinta solo cuando cambia loading, book o error
+      body: Obx(() => _buildBody(c)),
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BookDetailController c) {
     // 1. Cargando
-    if (_loading) {
+    if (c.loading.value) {
       return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -125,8 +93,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
 
     // 2. Error o libro no encontrado
-    final book = _book;
-    if (_error.isNotEmpty || book == null) {
+    final book = c.book.value;
+    if (c.error.value.isNotEmpty || book == null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -140,12 +108,12 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
               ),
               Text(
-                _error.isEmpty ? 'Libro no encontrado' : _error,
+                c.error.value.isEmpty ? 'Libro no encontrado' : c.error.value,
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: AppColors.textMuted),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Volver')),
+              ElevatedButton(onPressed: () => Get.back(), child: const Text('Volver')),
             ],
           ),
         ),
@@ -277,11 +245,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       // vamos a editar y al volver recargamos el detalle
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => BookFormScreen(bookId: book.id)),
-                      );
-                      _loadBook();
+                      await Get.toNamed('/books/${book.id}/edit');
+                      c.loadBook();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,

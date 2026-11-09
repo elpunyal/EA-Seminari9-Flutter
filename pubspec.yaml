@@ -10,11 +10,13 @@ dependencies:
   flutter:
     sdk: flutter
   # http: sustituye al fetch de React Native
+  get: ^4.7.3
   http: ^1.2.0
   # image_picker: sustituye a expo-image-picker (cámara y galería)
   image_picker: ^1.1.0
   # permission_handler: para pedir permisos y ver su estado (como usePermissions.ts)
   permission_handler: ^11.3.0
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:
