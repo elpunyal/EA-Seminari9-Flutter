@@ -6,3 +6,6 @@ build/
 pubspec.lock
 .idea/
 *.iml
+
+# Documentos personales (no se suben)
+SEMINARI9_*.md

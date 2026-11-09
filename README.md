@@ -110,9 +110,3 @@ lib/
 flutter analyze   # busca errores en el código
 flutter test      # ejecuta los tests de formato y de serialización (fromJson / toJson)
 ```
-
-## Documentación de Cambios
-
-Para consultar el informe completo de cambios con explicaciones y líneas de código modificadas:
-- Ver [SEMINARI9_FLUTTER.md](SEMINARI9_FLUTTER.md) (qué se ha cambiado y por qué)
-- Ver [SEMINARI9_CODIGO_RN_A_FLUTTER.md](SEMINARI9_CODIGO_RN_A_FLUTTER.md) (código de React Native y su equivalente en Flutter)
