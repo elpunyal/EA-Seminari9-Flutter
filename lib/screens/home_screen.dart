@@ -5,10 +5,9 @@ import '../controllers/home_controller.dart';
 import '../theme/app_colors.dart';
 import 'authors_screen.dart';
 import 'books_screen.dart';
-import 'info_screen.dart';
 import 'permissions_screen.dart';
 
-// Pantalla principal con las 4 pestañas de abajo (antes app/(tabs)/_layout.tsx).
+// Pantalla principal con las 3 pestañas de abajo (antes app/(tabs)/_layout.tsx).
 // Ahora es un StatelessWidget: la pestaña activa vive en el HomeController (GetX).
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -28,7 +27,6 @@ class HomeScreen extends StatelessWidget {
             BooksScreen(),
             AuthorsScreen(),
             PermissionsScreen(),
-            InfoScreen(),
           ],
         ),
         bottomNavigationBar: NavigationBar(
@@ -51,11 +49,6 @@ class HomeScreen extends StatelessWidget {
               icon: Icon(Icons.verified_user_outlined),
               selectedIcon: Icon(Icons.verified_user, color: AppColors.primary),
               label: 'Permisos',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.info_outline),
-              selectedIcon: Icon(Icons.info, color: AppColors.primary),
-              label: 'Teoría',
             ),
           ],
         ),
